@@ -61,3 +61,67 @@
 
 */
 
+
+describe ("Clase Enemy", function (){
+
+  // comprobamos si el canvas esta definido
+  var canvas, ctx;
+  var enemigo, basic;
+
+  beforeEach(function(){
+
+    loadFixtures('index.html');
+
+    canvas = $('#game')[0];
+    expect(canvas).toExist();
+
+    ctx = canvas.getContext('2d');
+    expect(ctx).toBeDefined();
+
+    // declaramos propiedades basicas del enemigo
+    basic = { x: 100, y: -50, sprite: 'enemy_circle', B: 100, C: 2 , E: 100 };
+    override = {A:10, B: -10};
+
+    Sprite_Sheet = {
+      map : {enemy_circle: { sx: 158, sy: 0, w: 32, h: 33, frames: 1 }}
+    };
+
+    enemigo = new Enemy(basic, override);
+
+  });
+
+
+  it ("Constructor ()", function (){
+
+    // comprobamos si se ha creado el bicho
+    expect (enemigo).toBeDefined();
+    expect (enemigo.w).toEqual(SpriteSheet.map[enemigo.sprite].w);
+    expect (enemigo.h).toEqual(SpriteSheet.map[enemigo.sprite].h);
+    expect (enemigo.t).toEqual(0);
+
+  });
+
+  it ("step ()", function (){
+
+    // probamos si se llama la funcion step con dt = 1.0
+    spyOn (enemigo, "step");
+
+    enemigo.step(1.0);
+
+    expect(enemigo.step).toHaveBeenCalled();
+
+  });
+
+
+  it ("draw ()", function (){
+
+    // probamos si se llama la funcion draw
+    spyOn(enemigo, "draw");
+
+    enemigo.draw(ctx);
+
+    expect(enemigo.draw).toHaveBeenCalled();
+
+  });
+  
+});
