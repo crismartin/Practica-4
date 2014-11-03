@@ -4,7 +4,8 @@ var sprites = {
     enemy_purple: { sx: 37, sy: 0, w: 42, h: 43, frames: 1 },
     enemy_bee: { sx: 79, sy: 0, w: 37, h: 43, frames: 1 },
     enemy_ship: { sx: 116, sy: 0, w: 42, h: 43, frames: 1 },
-    enemy_circle: { sx: 158, sy: 0, w: 32, h: 33, frames: 1 }
+    enemy_circle: { sx: 158, sy: 0, w: 32, h: 33, frames: 1 },
+    explosion: {sx: 0, sy: 64, w: 64, h: 64, frames: 1}
 };
 
 
@@ -36,7 +37,7 @@ var playGame = function() {
     // enemies.basic, pero con la propiedad x = 200 definida en el
     // segundo argumento de la llamada al constructor. Ver comentarios en el
     // constructor Enemy al final de este fichero.
-    board.add(new Enemy(enemies.basic, { x: 200 }));
+    board.add(new Enemy(enemies.basic, {x: 200}));
 
     board.add(new PlayerShip());
     Game.setBoard(3,board);
@@ -50,8 +51,8 @@ var Starfield = function(speed,opacity,numStars,clear) {
 
     // Creamos un objeto canvas, no visible en la página Web
     var stars = $('<canvas/>')
-	.attr('width', Game.width)
-	.attr('height', Game.height)[0];
+    .attr('width', Game.width)
+    .attr('height', Game.height)[0];
     // Sin jQuery lo hacemos asi:
     //    var stars = document.createElement("canvas");
     //    stars.width = Game.width; 
@@ -65,8 +66,8 @@ var Starfield = function(speed,opacity,numStars,clear) {
     // Si la opción clear está activada, el fondo del canvas se pinta
     // de negro. Utilizado en el nivel mas profundo de estrellas
     if(clear) {
-	starCtx.fillStyle = "#000";
-	starCtx.fillRect(0,0,stars.width,stars.height);
+    starCtx.fillStyle = "#000";
+    starCtx.fillRect(0,0,stars.width,stars.height);
     }
 
     // Dibujamos las estrellas blancas sobre el canvas no visible,
@@ -74,44 +75,44 @@ var Starfield = function(speed,opacity,numStars,clear) {
     starCtx.fillStyle = "#FFF";
     starCtx.globalAlpha = opacity; // nivel de transparencia de las estrellas
     for(var i=0;i<numStars;i++) {
-	starCtx.fillRect(Math.floor(Math.random()*stars.width),
-			 Math.floor(Math.random()*stars.height),
-			 2,
-			 2);
+    starCtx.fillRect(Math.floor(Math.random()*stars.width),
+             Math.floor(Math.random()*stars.height),
+             2,
+             2);
     }
 
     // Se llama a este método en cada frame de la animación para dibujar
     // el campo de estrellas en la pantalla
     this.draw = function(ctx) {
-	var intOffset = Math.floor(offset);
-	var remaining = stars.height - intOffset;
+    var intOffset = Math.floor(offset);
+    var remaining = stars.height - intOffset;
 
-	// Dibujar sobre el contexto ctx la parte de arriba del canvas con
-	// las estrellas
-	if(intOffset > 0) {
-	    ctx.drawImage(stars,
-			  0, remaining,
-			  stars.width, intOffset,
-			  0, 0,
-			  stars.width, intOffset);
-	}
+    // Dibujar sobre el contexto ctx la parte de arriba del canvas con
+    // las estrellas
+    if(intOffset > 0) {
+        ctx.drawImage(stars,
+              0, remaining,
+              stars.width, intOffset,
+              0, 0,
+              stars.width, intOffset);
+    }
 
-	// Dibujar sobre el contexto ctx la parte inferior del canvas con
-	// las estrellas
-	if(remaining > 0) {
-	    ctx.drawImage(stars,
-			  0, 0,
-			  stars.width, remaining,
-			  0, intOffset,
-			  stars.width, remaining);
-	}
+    // Dibujar sobre el contexto ctx la parte inferior del canvas con
+    // las estrellas
+    if(remaining > 0) {
+        ctx.drawImage(stars,
+              0, 0,
+              stars.width, remaining,
+              0, intOffset,
+              stars.width, remaining);
+    }
     }
 
     // En cada paso de la animación, movemos el campo de estrellas
     // modificando el offset según la cantidad de tiempo transcurrida
     this.step = function(dt) {
-	offset += dt * speed; // velocidad = espacio / tiempo
-	offset = offset % stars.height;
+    offset += dt * speed; // velocidad = espacio / tiempo
+    offset = offset % stars.height;
     }
 }
 
@@ -131,31 +132,42 @@ var PlayerShip = function() {
     this.maxVel = 200;
 
     this.step = function(dt) {
-	if(Game.keys['left']) { this.vx = -this.maxVel; }
-	else if(Game.keys['right']) { this.vx = this.maxVel; }
-	else { this.vx = 0; }
+    if(Game.keys['left']) { this.vx = -this.maxVel; }
+    else if(Game.keys['right']) { this.vx = this.maxVel; }
+    else { this.vx = 0; }
 
-	this.x += this.vx * dt;
+    this.x += this.vx * dt;
 
-	if(this.x < 0) { this.x = 0; }
-	else if(this.x > Game.width - this.w) { 
-	    this.x = Game.width - this.w 
-	}
+    if(this.x < 0) { this.x = 0; }
+    else if(this.x > Game.width - this.w) { 
+        this.x = Game.width - this.w 
+    }
 
-	this.reload-=dt;
-	if(Game.keys['fire'] && this.reload < 0) {
-	    // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
-	    Game.keys['fire'] = false;
-	    this.reload = this.reloadTime;
+    this.reload-=dt;
+    if(Game.keys['fire'] && this.reload < 0) {
+        // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
+        Game.keys['fire'] = false;
+        this.reload = this.reloadTime;
 
-	    // Se añaden al gameboard 2 misiles 
-	    this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
-	    this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
-	}
+        // Se añaden al gameboard 2 misiles 
+        this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
+        this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
+    }
+    
+    if (Game.keys['bfuego-izq'] && this.reload < 0){
+        this.board.add(new FireBall(this.x, this.y+this.h/2, "left"));
+        this.reload = this.reloadTime;
+    }
+
+    if (Game.keys['bfuego-der'] && this.reload < 0){
+        this.board.add(new FireBall(this.x+this.w, this.y+this.h/2, "right"));
+        this.reload = this.reloadTime;
+    }
+
     }
 
     this.draw = function(ctx) {
-	SpriteSheet.draw(ctx,'ship',this.x,this.y,0);
+    SpriteSheet.draw(ctx,'ship',this.x,this.y,0);
     }
 }
 
@@ -210,22 +222,22 @@ var Enemy = function(blueprint,override) {
 
     // Cada instancia tendrá las propiedades definidas en baseParameters
     for (var prop in baseParameters) {
-	this[prop] = baseParameters[prop];
+    this[prop] = baseParameters[prop];
     }
 
     // Se copian los atributos definidos en el parámetro blueprint,
     // pudiendo modificar los definidos en baseParameters
     for (prop in blueprint) {
-	this[prop] = blueprint[prop];
+    this[prop] = blueprint[prop];
     }
 
     // Se copian los atributos definidos en el parámetro override,
     // pudiendo modificar los definidos en baseParameters y en
     // blueprint
     if(override) {
-	for (prop in override) {
-	    this[prop] = override[prop];
-	}
+    for (prop in override) {
+        this[prop] = override[prop];
+    }
     }
 
     // En el parámetro blueprint viene la propiedad sprite, que se ha
@@ -269,7 +281,7 @@ Enemy.prototype.step = function(dt) {
     if(this.y > Game.height ||
        this.x < -this.w||
        this.x > Game.width) {
-	this.board.remove(this);
+    this.board.remove(this);
     }
 }
 
@@ -278,6 +290,37 @@ Enemy.prototype.step = function(dt) {
 Enemy.prototype.draw = function(ctx) {
     SpriteSheet.draw(ctx,this.sprite,this.x,this.y);
 }
+
+// Bolas de fuego
+var FireBall = function(a,b,direccion) {
+    this.w = SpriteSheet.map['explosion'].w;
+    this.h = SpriteSheet.map['explosion'].h;
+    this.x = a - this.w/5; 
+    this.y = b - this.h/2; 
+
+    this.vy = -1200;
+    this.vx = -200;
+
+    this.direction = direccion;
+
+    if (direccion == "right"){
+        this.vx = -this.vx;
+    }
+};
+
+FireBall.prototype.step = function(dt)  {
+    this.y += this.vy * dt;
+    this.x += this.vx * dt;
+    this.vy += 100; 
+
+    if(this.y > 480) {
+        this.board.remove(this); 
+    }
+};
+
+FireBall.prototype.draw = function(ctx)  {
+    SpriteSheet.draw(ctx,'explosion',this.x,this.y);
+};
 
 
 
