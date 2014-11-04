@@ -42,4 +42,3 @@ describe ("Clase FireBall", function (){
 
 	});
 
-});
