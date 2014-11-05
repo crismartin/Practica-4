@@ -32,7 +32,7 @@ var Game = new function() {
     };
 
     // Gestión de la entrada (teclas para izda/derecha y disparo)
-    var KEY_CODES = { 37:'left', 39:'right', 32 :'fire' };
+    var KEY_CODES = { 37:'left', 39:'right', 32 :'fire', 66: 'bfuego-izq', 78: 'bfuego-der'};
     this.keys = {};
 
     this.setupInput = function() {
@@ -249,15 +249,13 @@ var GameBoard = function() {
     // Si se llama sin type, en contrar el primer objeto de cualquier
     // tipo que colisiona con obj
     this.collide = function(obj,type) {
-	return this.detect(function() {
-	    if(obj != this) {
-		var col = (!type || this.type & type) && board.overlap(obj,this)
-		return col ? this : false;
-	    }
-	});
+	   return this.detect(function() {
+	        if(obj != this) {
+		      var col = (!type || this.type & type) && board.overlap(obj,this)
+		      return col ? this : false;
+            }
+	   });
     };
-
-
 };
 
 
@@ -274,9 +272,9 @@ Sprite.prototype.setup = function(sprite,props) {
 
 Sprite.prototype.merge = function(props) {
     if(props) {
-	for (var prop in props) {
-	    this[prop] = props[prop];
-	}
+	   for (var prop in props) {
+	       this[prop] = props[prop];
+	   }
     }
 }
 

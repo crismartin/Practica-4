@@ -5,7 +5,8 @@ var sprites = {
     enemy_bee: { sx: 79, sy: 0, w: 37, h: 43, frames: 1 },
     enemy_ship: { sx: 116, sy: 0, w: 42, h: 43, frames: 1 },
     enemy_circle: { sx: 158, sy: 0, w: 32, h: 33, frames: 1 },
-    explosion: { sx: 0, sy: 64, w: 64, h: 64, frames: 12 }
+    explosion: { sx: 0, sy: 64, w: 64, h: 64, frames: 12 },
+    fireball: { sx: 0, sy: 64, w: 64, h: 64, frames: 1 }
 };
 
 
@@ -21,6 +22,7 @@ OBJECT_PLAYER_PROJECTILE =  2,
 OBJECT_ENEMY             =  4,
 OBJECT_ENEMY_PROJECTILE  =  8,
 OBJECT_POWERUP           = 16;
+OBJECT_FIREBALL          = 32;
 
 var startGame = function() {
     Game.setBoard(0,new Starfield(20,0.4,100,true))
@@ -129,29 +131,40 @@ var PlayerShip = function() {
     this.y = Game.height - 10 - this.h;
 
     this.step = function(dt) {
-	if(Game.keys['left']) { this.vx = -this.maxVel; }
-	else if(Game.keys['right']) { this.vx = this.maxVel; }
-	else { this.vx = 0; }
 
-	this.x += this.vx * dt;
+	   if(Game.keys['left']) { this.vx = -this.maxVel; }
+	   else if(Game.keys['right']) { this.vx = this.maxVel; }
+	   else { this.vx = 0; }
 
-	if(this.x < 0) { this.x = 0; }
-	else if(this.x > Game.width - this.w) { 
-	    this.x = Game.width - this.w 
-	}
+        this.x += this.vx * dt;
 
-	this.reload-=dt;
-	if(Game.keys['fire'] && this.reload < 0) {
-	    // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
-	    Game.keys['fire'] = false;
-	    this.reload = this.reloadTime;
+        if(this.x < 0) { this.x = 0; }
+        else if(this.x > Game.width - this.w) { 
+            this.x = Game.width - this.w 
+        }
 
-	    // Se añaden al gameboard 2 misiles 
-	    this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
-	    this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
-	}
+	    this.reload-=dt;
+        if(Game.keys['fire'] && this.reload < 0) {
+	       // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
+	       Game.keys['fire'] = false;
+	       this.reload = this.reloadTime;
+
+    	    // Se añaden al gameboard 2 misiles 
+	       this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
+	       this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
+	   }
+        if (Game.keys['bfuego-izq'] && this.reload < 0){
+            this.board.add(new FireBall(this.x, this.y+this.h/2, "left"));
+            this.reload = this.reloadTime;
+        }
+
+        if (Game.keys['bfuego-der'] && this.reload < 0){
+            this.board.add(new FireBall(this.x+this.w, this.y+this.h/2, "right"));
+            this.reload = this.reloadTime;
+        }
     }
 }
+
 
 // Heredamos del prototipo new Sprite()
 PlayerShip.prototype = new Sprite();
@@ -299,6 +312,36 @@ Explosion.prototype.step = function(dt) {
 	this.board.remove(this);
     }
 }
+
+
+// Bolas de fuego
+var FireBall = function(a,b,direccion) {
+    this.setup ('fireball',{vy: -1200, vx: -200, direccion, damage: 20})    
+    this.x = a - this.w/5; 
+    this.y = b - this.h/2; 
+
+    if (direccion == "right"){
+        this.vx = -this.vx;
+    }
+};
+
+FireBall.prototype = new Sprite();
+FireBall.prototype.type = OBJECT_FIREBALL;
+
+FireBall.prototype.step = function(dt)  {
+    this.y += this.vy * dt;
+    this.x += this.vx * dt;
+    this.vy += 100; 
+
+    var collision = this.board.collide(this, OBJECT_ENEMY);
+    if (collision){
+
+        collision.hit(this.damage);
+     
+    }else if(this.y > 480) {
+        this.board.remove(this); 
+    }
+};
 
 
 $(function() {
